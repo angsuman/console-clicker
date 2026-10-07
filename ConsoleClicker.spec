@@ -32,6 +32,6 @@ coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name='ConsoleCl
 if sys.platform == 'darwin':
     app = BUNDLE(coll, name='ConsoleClicker.app', bundle_identifier='com.consoleclicker.desktop',
                  info_plist={'NSHighResolutionCapable': True,
-                             'NSHumanReadableCopyright': 'Console Clicker contributors',
+                             'NSHumanReadableCopyright': 'Copyright (c) 2026 Angsuman Chakraborty',
                              'NSAppleEventsUsageDescription': 'Console Clicker watches your selected terminal.',
                              'CFBundleShortVersionString': version})
