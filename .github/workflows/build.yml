@@ -1,0 +1,75 @@
+name: Build desktop executables
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: linux-x64
+          - os: windows-latest
+            artifact: windows-x64
+          - os: macos-15
+            artifact: macos-arm64
+          - os: macos-15-intel
+            artifact: macos-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Linux OCR and Tk
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-eng python3-tk
+      - name: Install macOS OCR and matching Python/Tk
+        if: runner.os == 'macOS'
+        run: |
+          brew install tesseract python@3.12 python-tk@3.12
+          "$(brew --prefix python@3.12)/bin/python3.12" -m venv .build-venv
+          echo "$GITHUB_WORKSPACE/.build-venv/bin" >> "$GITHUB_PATH"
+      - name: Install Windows OCR
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # A dedicated minimal conda-forge prefix provides the executable,
+          # English model and native DLL dependencies without an installer.
+          $ocrPrefix = Join-Path $env:RUNNER_TEMP 'clicker-ocr'
+          & "$env:CONDA\Scripts\conda.exe" create --yes --prefix $ocrPrefix --override-channels --channel conda-forge tesseract=5.5.0
+          if ($LASTEXITCODE -ne 0) { throw 'Tesseract installation failed' }
+          "CLICKER_TESSERACT=$ocrPrefix\Library\bin\tesseract.exe" >> $env:GITHUB_ENV
+          "CLICKER_TESSDATA=$ocrPrefix\Library\share\tessdata" >> $env:GITHUB_ENV
+          "$ocrPrefix\Library\bin" >> $env:GITHUB_PATH
+      - run: python -m pip install -r requirements-build.txt
+      - name: Verify Tk is available
+        run: python -c "import tkinter; print(tkinter.TkVersion)"
+      - run: python -m pytest -q
+      - run: python scripts/build.py --archive
+      - name: Verify bundled OCR
+        if: runner.os != 'macOS'
+        shell: bash
+        run: |
+          ./dist/ConsoleClicker/ConsoleClicker --check-image tests/fixtures/approval.png
+          ./dist/ConsoleClicker/ConsoleClicker --check-image tests/fixtures/opencode_once.png
+      - name: Verify bundled macOS OCR
+        if: runner.os == 'macOS'
+        run: |
+          ./dist/ConsoleClicker.app/Contents/MacOS/ConsoleClicker --check-image tests/fixtures/approval.png
+          ./dist/ConsoleClicker.app/Contents/MacOS/ConsoleClicker --check-image tests/fixtures/opencode_once.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ConsoleClicker-${{ matrix.artifact }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+          if-no-files-found: error
