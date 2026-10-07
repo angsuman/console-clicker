@@ -35,3 +35,17 @@ def test_real_opencode_screens(name, fires):
         image = opened.convert("RGB")
     match = PromptMatcher().match(ocr.read(image), image, ocr)
     assert (match is not None and match.rule == "OpenCode permission") is fires
+
+
+def test_model_is_found_in_conda_layout_next_to_executable(tmp_path, monkeypatch):
+    # conda-forge on Windows: <env>/Library/bin/tesseract.exe and <env>/share/tessdata.
+    executable = tmp_path / "Library" / "bin" / "tesseract"
+    executable.parent.mkdir(parents=True)
+    executable.write_text("")
+    data = tmp_path / "share" / "tessdata"
+    data.mkdir(parents=True)
+    (data / "eng.traineddata").write_text("")
+    monkeypatch.setenv("CLICKER_TESSERACT", str(executable))
+    monkeypatch.setenv("CLICKER_TESSDATA", str(tmp_path / "missing"))
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+    assert OCR().data == data

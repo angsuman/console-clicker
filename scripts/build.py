@@ -18,6 +18,7 @@ def stage_ocr():
     prefix = Path(os.environ.get("CONDA_PREFIX", sys.prefix))
     candidates = [Path(os.environ["CLICKER_TESSDATA"])] if os.environ.get("CLICKER_TESSDATA") else []
     candidates += [executable.parent / "tessdata", executable.parent.parent / "share/tessdata",
+                   executable.parent.parent.parent / "share/tessdata",
                    prefix / "Library/share/tessdata", prefix / "share/tessdata",
                    Path("/usr/share/tesseract-ocr/5/tessdata"), Path("/usr/share/tesseract-ocr/4.00/tessdata"),
                    Path("/usr/share/tessdata"), Path("/opt/homebrew/share/tessdata"), Path("/usr/local/share/tessdata")]

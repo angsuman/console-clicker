@@ -24,10 +24,16 @@ class OCR:
         self.executable = str(bundled) if bundled.is_file() else os.environ.get("CLICKER_TESSERACT") or shutil.which(name)
         if not self.executable:
             raise RuntimeError("Tesseract is missing. Use the packaged app, or install Tesseract with English language data.")
-        data = root / "ocr" / "tessdata"
-        if not bundled.is_file() and os.environ.get("CLICKER_TESSDATA"):
-            data = Path(os.environ["CLICKER_TESSDATA"])
-        self.data = data if (data / "eng.traineddata").exists() else None
+        candidates = [root / "ocr" / "tessdata"]
+        if not bundled.is_file():
+            # Source runs: an explicit directory, then the layouts that
+            # installers and conda use next to the executable.
+            executable = Path(self.executable).resolve()
+            candidates = [Path(os.environ["CLICKER_TESSDATA"])] if os.environ.get("CLICKER_TESSDATA") else []
+            candidates += [executable.parent / "tessdata", executable.parent.parent / "share" / "tessdata",
+                           executable.parent.parent.parent / "share" / "tessdata"]
+        # None lets Tesseract use its compiled-in location.
+        self.data = next((path for path in candidates if (path / "eng.traineddata").is_file()), None)
         self.env = os.environ.copy()
         self.env["OMP_THREAD_LIMIT"] = "1"
         # Windows subprocess DLL search does not inherit AddDllDirectory handles.

@@ -50,7 +50,7 @@ jobs:
           & "$env:CONDA\Scripts\conda.exe" create --yes --prefix $ocrPrefix --override-channels --channel conda-forge tesseract=5.5.0
           if ($LASTEXITCODE -ne 0) { throw 'Tesseract installation failed' }
           "CLICKER_TESSERACT=$ocrPrefix\Library\bin\tesseract.exe" >> $env:GITHUB_ENV
-          "CLICKER_TESSDATA=$ocrPrefix\Library\share\tessdata" >> $env:GITHUB_ENV
+          "CLICKER_TESSDATA=$ocrPrefix\share\tessdata" >> $env:GITHUB_ENV
           "$ocrPrefix\Library\bin" >> $env:GITHUB_PATH
       - run: python -m pip install -r requirements-build.txt
       - name: Verify Tk is available
