@@ -1,0 +1,84 @@
+name: Prompt not recognized
+description: A prompt was missed, matched wrongly, or Enter was pressed when it should not have been.
+title: "[Prompt] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Recognition problems are fixable only with a screenshot of the prompt.
+        **Before attaching anything, hide secrets** such as tokens, keys, private paths or customer data that are visible in the terminal.
+  - type: dropdown
+    id: problem
+    attributes:
+      label: What happened?
+      options:
+        - The prompt was not detected (nothing was pressed)
+        - Enter was pressed on a prompt it should have ignored
+        - The prompt was detected, but Enter did not reach the terminal
+        - Something else
+    validations:
+      required: true
+  - type: dropdown
+    id: cli
+    attributes:
+      label: AI CLI
+      options:
+        - Claude Code
+        - OpenCode
+        - OpenCode (--mini)
+        - Codex CLI
+        - Gemini CLI
+        - Other (say which below)
+    validations:
+      required: true
+  - type: input
+    id: cli-version
+    attributes:
+      label: AI CLI version
+      placeholder: e.g. opencode 1.18.35
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot of the prompt
+      description: Drag in a screenshot of the watched area showing the prompt, including its cursor or highlighted option.
+    validations:
+      required: true
+  - type: textarea
+    id: check-image
+    attributes:
+      label: Output of --check-image
+      description: |
+        Run the app on the same screenshot: `ConsoleClicker --check-image prompt.png` (or `python launcher.py --check-image prompt.png` from source) and paste the JSON. It never presses a key.
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and session
+      placeholder: e.g. Ubuntu 24.04 X11, Windows 11, macOS 15 (Apple Silicon)
+    validations:
+      required: true
+  - type: input
+    id: terminal
+    attributes:
+      label: Terminal app, theme and font size
+      placeholder: e.g. GNOME Terminal, default dark theme, 12 pt
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Console Clicker version
+      description: The release you downloaded, or the commit if you run from source (`git rev-parse --short HEAD`).
+      placeholder: e.g. v1.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else
+      description: Which rules were enabled, test mode on or off, whether the console was focused, and the matching approval log entry if there is one (hide secrets).

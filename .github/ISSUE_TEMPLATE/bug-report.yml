@@ -1,0 +1,62 @@
+name: Bug report
+description: The app crashed, misbehaved, or did something unexpected (not a recognition problem).
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a prompt that was missed or wrongly answered, use **Prompt not recognized** instead.
+        Hide secrets in any screenshots, logs or approval log excerpts you attach.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a console over …
+        2. Switch it on …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: errors
+    attributes:
+      label: Error messages or activity log
+      description: Text from the app's Activity panel, its status line, or the terminal it was started from.
+      render: text
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and session
+      placeholder: e.g. Ubuntu 24.04 X11, Windows 11, macOS 15 (Apple Silicon)
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Console Clicker version
+      description: The release you downloaded, or the commit if you run from source (`git rev-parse --short HEAD`).
+      placeholder: e.g. v1.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How do you run it?
+      options:
+        - Downloaded build
+        - From source
+    validations:
+      required: true
