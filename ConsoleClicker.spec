@@ -13,12 +13,14 @@ binaries += [(str(dll), 'ocr') for dll in stage.glob('*.dll')]
 datas = [(str(stage / 'tessdata' / 'eng.traineddata'), 'ocr/tessdata'),
          (str(root / 'THIRD_PARTY_NOTICES.md'), '.'),
          (str(root / 'README.md'), '.'), (str(root / 'LICENSE'), '.')]
+# Pillow's native _imagingtk extension imports this module dynamically.
+hidden = ['PIL._tkinter_finder']
 if sys.platform == 'win32':
-    hidden = ['pynput.keyboard._win32', 'pynput.mouse._win32']
+    hidden += ['pynput.keyboard._win32', 'pynput.mouse._win32']
 elif sys.platform == 'darwin':
-    hidden = ['pynput.keyboard._darwin', 'pynput.mouse._darwin', 'AppKit', 'Quartz']
+    hidden += ['pynput.keyboard._darwin', 'pynput.mouse._darwin', 'AppKit', 'Quartz']
 else:
-    hidden = ['pynput.keyboard._xorg', 'pynput.mouse._xorg', 'Xlib.display']
+    hidden += ['pynput.keyboard._xorg', 'pynput.mouse._xorg', 'Xlib.display']
 
 a = Analysis([str(root / 'launcher.py')], pathex=[str(root)], binaries=binaries, datas=datas,
              hiddenimports=hidden,

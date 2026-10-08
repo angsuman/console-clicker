@@ -202,6 +202,29 @@ log, stop during recognition, screen changes during OCR, and movement.
 For graphical testing on each target, use `--demo` and verify the confirmation
 counter, test mode, focus switching, and both emergency-stop methods.
 
+### Test Linux in Docker
+
+After building the Linux executable, run the packaged app in Ubuntu 22.04 with
+a virtual X11 desktop. The runtime image has no system Python or Tesseract.
+The test checks all five OCR fixtures, opens the app and demo, selects the demo
+area, verifies an Enter confirmation and its approval log, and tests the
+Ctrl+Alt+Q emergency stop.
+
+```bash
+docker build --target runtime-test -f scripts/docker/Dockerfile -t console-clicker-runtime-test .
+docker run --rm --network none console-clicker-runtime-test
+```
+
+Run the source tests with dependencies installed from `requirements-build.txt`:
+
+```bash
+docker build --target source-test -f scripts/docker/Dockerfile -t console-clicker-source-test .
+docker run --rm --network none console-clicker-source-test
+```
+
+These tests use the container's display and harmless demo. They cover Linux X11;
+Windows, macOS, and behavior under other desktop window managers need native testing.
+
 See [Tesseract documentation](https://tesseract-ocr.github.io/tessdoc/),
 [Pillow screen capture](https://pillow.readthedocs.io/en/stable/reference/ImageGrab.html),
 and [pynput platform limitations](https://pynput.readthedocs.io/en/latest/limitations.html).

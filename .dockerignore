@@ -1,0 +1,13 @@
+.git
+.agents
+.aws
+.codex
+.gstack
+.venv
+.build-venv
+.pytest_cache
+**/__pycache__
+build
+docs
+dist/*.tar.gz
+dist/*.zip
