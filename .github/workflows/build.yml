@@ -69,6 +69,11 @@ jobs:
         run: |
           ./dist/ConsoleClicker.app/Contents/MacOS/ConsoleClicker --check-image tests/fixtures/approval.png
           ./dist/ConsoleClicker.app/Contents/MacOS/ConsoleClicker --check-image tests/fixtures/opencode_once.png
+      - name: Test packaged Linux application in Docker
+        if: runner.os == 'Linux'
+        run: |
+          docker build --target runtime-test -f scripts/docker/Dockerfile -t console-clicker-runtime-test .
+          docker run --rm --network none console-clicker-runtime-test
       - uses: actions/upload-artifact@v7
         with:
           name: ConsoleClicker-${{ matrix.artifact }}
@@ -76,3 +81,50 @@ jobs:
             dist/*.zip
             dist/*.tar.gz
           if-no-files-found: error
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: ConsoleClicker-*
+          path: release-assets
+          merge-multiple: true
+      - name: Prepare release notes and checksums
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from clicker import __version__
+
+          version = os.environ['RELEASE_TAG'].removeprefix('v')
+          if version != __version__:
+              raise SystemExit('Release tag does not match the application version')
+          changelog = Path('CHANGELOG.md').read_text()
+          heading = f'## {version}\n'
+          if heading not in changelog:
+              raise SystemExit('Release version is missing from CHANGELOG.md')
+          notes = changelog.split(heading, 1)[1].split('\n## ', 1)[0].strip()
+          Path('release-notes.md').write_text(notes + '\n')
+          archives = list(Path('release-assets').glob('*.zip')) + list(Path('release-assets').glob('*.tar.gz'))
+          if len(archives) != 4:
+              raise SystemExit(f'Expected four platform archives, found {len(archives)}')
+          PY
+          cd release-assets
+          sha256sum *.zip *.tar.gz > SHA256SUMS
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" release-assets/* \
+            --verify-tag --title "Console Clicker $RELEASE_TAG" \
+            --notes-file release-notes.md --latest

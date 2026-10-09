@@ -37,6 +37,9 @@ used only to describe compatibility.
 
 ## Use the application
 
+Download the archive for your platform from the
+[latest GitHub release](https://github.com/angsuman/console-clicker/releases/latest).
+
 1. Open `ConsoleClicker.exe` on Windows, `ConsoleClicker` on Linux, or
    `ConsoleClicker.app` on macOS. Extract the entire distribution first;
    keep its supporting files together.
@@ -185,8 +188,9 @@ each platform; see its [platform build documentation](https://pyinstaller.org/en
 The repository includes `.github/workflows/build.yml` to build and verify all
 four targets on GitHub Actions. Push the project to your GitHub repository,
 open **Actions → Build desktop executables → Run workflow**, and download its
-artifacts. It also runs on version tags and pull requests. The workflow creates
-downloadable artifacts and does not publish a release.
+artifacts. It also runs on main, version tags and pull requests. Version tags
+publish a GitHub release with all four platform archives and SHA-256 checksums
+after the builds, bundled OCR checks and Linux Docker smoke test succeed.
 
 The source screenshot test runs without a desktop:
 

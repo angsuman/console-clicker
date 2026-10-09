@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Fix packaged screen previews by including Pillow's dynamically imported Tk
+  helper on Linux, Windows and macOS.
+- Add Docker smoke tests for bundled OCR, application startup, screen capture,
+  prompt approval, approval logging and the emergency stop on Linux X11.
+- Publish GitHub releases with Linux x64, Windows x64, macOS Apple Silicon and
+  macOS Intel downloads after all platform builds and checks succeed.
+- Add issue forms for bug reports and prompts that are not recognized.
+
 ## 1.1.0
 
 - Watch several terminals at once, each with its own On switch; **All off** and
